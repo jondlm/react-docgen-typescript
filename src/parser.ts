@@ -1,8 +1,8 @@
-import * as fs from "fs";
-import * as path from "path";
-import * as ts from "typescript";
+import * as fs from 'fs';
+import * as path from 'path';
+import * as ts from 'typescript';
 
-import { buildFilter } from "./buildFilter";
+import { buildFilter } from './buildFilter';
 
 // We'll use the currentDirectoryName to trim parent fileNames
 const currentDirectoryPath = process.cwd();
@@ -35,7 +35,7 @@ export interface Method {
   name: string;
   docblock: string;
   modifiers: string[];
-  params: Array<MethodParameter>;
+  params: MethodParameter[];
   returns?: {
     description?: string | null;
     type?: string;
@@ -129,7 +129,7 @@ export function withCustomConfig(
 ): FileParser {
   const basePath = path.dirname(tsconfigPath);
   const { config, error } = ts.readConfigFile(tsconfigPath, filename =>
-    fs.readFileSync(filename, "utf8")
+    fs.readFileSync(filename, 'utf8')
   );
 
   if (error !== undefined) {
@@ -187,8 +187,8 @@ interface JSDoc {
 }
 
 const defaultJSDoc: JSDoc = {
-  description: "",
-  fullComment: "",
+  description: '',
+  fullComment: '',
   tags: {}
 };
 
@@ -227,10 +227,10 @@ export class Parser {
       exp = type.symbol;
       const expName = exp.getName();
       if (
-        expName === "StatelessComponent" ||
-        expName === "Stateless" ||
-        expName === "StyledComponentClass" ||
-        expName === "FunctionComponent"
+        expName === 'StatelessComponent' ||
+        expName === 'Stateless' ||
+        expName === 'StyledComponentClass' ||
+        expName === 'FunctionComponent'
       ) {
         commentSource = this.checker.getAliasedSymbol(commentSource);
       } else {
@@ -241,8 +241,8 @@ export class Parser {
     // Skip over PropTypes that are exported
     if (
       type.symbol &&
-      (type.symbol.getEscapedName() === "Requireable" ||
-        type.symbol.getEscapedName() === "Validator")
+      (type.symbol.getEscapedName() === 'Requireable' ||
+        type.symbol.getEscapedName() === 'Validator')
     ) {
       return null;
     }
@@ -312,7 +312,7 @@ export class Parser {
         // Maybe we could check return type instead,
         // but not sure if Element, ReactElement<T> are all possible values
         const propsParam = params[0];
-        if (propsParam.name === "props" || params.length === 1) {
+        if (propsParam.name === 'props' || params.length === 1) {
           return propsParam;
         }
       }
@@ -342,7 +342,7 @@ export class Parser {
 
       for (const sig of constructSignatures) {
         const instanceType = sig.getReturnType();
-        const props = instanceType.getProperty("props");
+        const props = instanceType.getProperty('props');
 
         if (props) {
           return props;
@@ -421,13 +421,13 @@ export class Parser {
     const isStatic = (flags & ts.ModifierFlags.Static) !== 0; // tslint:disable-line no-bitwise
 
     if (isStatic) {
-      modifiers.push("static");
+      modifiers.push('static');
     }
 
     return modifiers;
   }
 
-  public getParameterInfo(callSignature: ts.Signature): Array<MethodParameter> {
+  public getParameterInfo(callSignature: ts.Signature): MethodParameter[] {
     return callSignature.parameters.map(param => {
       const paramType = this.checker.getTypeOfSymbolAtLocation(
         param,
@@ -443,7 +443,7 @@ export class Parser {
           ts.displayPartsToString(
             param.getDocumentationComment(this.checker)
           ) || null,
-        name: param.getName() + (isOptionalParam ? "?" : ""),
+        name: param.getName() + (isOptionalParam ? '?' : ''),
         type: { name: this.checker.typeToString(paramType) }
       };
     });
@@ -460,13 +460,13 @@ export class Parser {
 
   public isTaggedPublic(symbol: ts.Symbol) {
     const jsDocTags = symbol.getJsDocTags();
-    const isPublic = Boolean(jsDocTags.find(tag => tag.name === "public"));
+    const isPublic = Boolean(jsDocTags.find(tag => tag.name === 'public'));
     return isPublic;
   }
 
   public getReturnDescription(symbol: ts.Symbol) {
     const tags = symbol.getJsDocTags();
-    const returnTag = tags.find(tag => tag.name === "returns");
+    const returnTag = tags.find(tag => tag.name === 'returns');
     if (!returnTag) {
       return null;
     }
@@ -626,7 +626,7 @@ export class Parser {
     );
 
     if (mainComment) {
-      mainComment = mainComment.replace("\r\n", "\n");
+      mainComment = mainComment.replace('\r\n', '\n');
     }
 
     const tags = symbol.getJsDocTags() || [];
@@ -635,20 +635,20 @@ export class Parser {
     const tagMap: StringIndexedObject<string> = {};
 
     tags.forEach(tag => {
-      const trimmedText = (tag.text || "").trim();
+      const trimmedText = (tag.text || '').trim();
       const currentValue = tagMap[tag.name];
       tagMap[tag.name] = currentValue
-        ? currentValue + "\n" + trimmedText
+        ? currentValue + '\n' + trimmedText
         : trimmedText;
 
-      if (tag.name !== "default") {
+      if (tag.name !== 'default') {
         tagComments.push(formatTag(tag));
       }
     });
 
     return {
       description: mainComment,
-      fullComment: (mainComment + "\n" + tagComments.join("\n")).trim(),
+      fullComment: (mainComment + '\n' + tagComments.join('\n')).trim(),
       tags: tagMap
     };
   }
@@ -683,7 +683,7 @@ export class Parser {
 
     if (statementIsClassDeclaration(statement) && statement.members.length) {
       const possibleDefaultProps = statement.members.filter(
-        member => member.name && getPropertyName(member.name) === "defaultProps"
+        member => member.name && getPropertyName(member.name) === 'defaultProps'
       );
 
       if (!possibleDefaultProps.length) {
@@ -763,9 +763,9 @@ export class Parser {
       case ts.SyntaxKind.PropertyAccessExpression:
         return initializer.getText();
       case ts.SyntaxKind.FalseKeyword:
-        return "false";
+        return 'false';
       case ts.SyntaxKind.TrueKeyword:
-        return "true";
+        return 'true';
       case ts.SyntaxKind.StringLiteral:
         return (initializer as ts.StringLiteral).text.trim();
       case ts.SyntaxKind.PrefixUnaryExpression:
@@ -773,11 +773,11 @@ export class Parser {
       case ts.SyntaxKind.NumericLiteral:
         return `${(initializer as ts.NumericLiteral).text}`;
       case ts.SyntaxKind.NullKeyword:
-        return "null";
+        return 'null';
       case ts.SyntaxKind.Identifier:
         // can potentially find other identifiers in the source and map those in the future
-        return (initializer as ts.Identifier).text === "undefined"
-          ? "undefined"
+        return (initializer as ts.Identifier).text === 'undefined'
+          ? 'undefined'
           : null;
       case ts.SyntaxKind.ObjectLiteralExpression:
         // return the source text for an object literal
@@ -801,7 +801,7 @@ export class Parser {
         );
         const propertyName = getPropertyName(property.name);
 
-        if (typeof literalValue === "string" && propertyName !== null) {
+        if (typeof literalValue === 'string' && propertyName !== null) {
           acc[propertyName] = literalValue;
         }
 
@@ -825,7 +825,7 @@ function statementIsStateless(statement: ts.Statement): boolean {
     const { left } = child as ts.BinaryExpression;
     if (left) {
       const { name } = left as ts.PropertyAccessExpression;
-      if (name.escapedText === "defaultProps") {
+      if (name.escapedText === 'defaultProps') {
         return true;
       }
     }
@@ -847,9 +847,9 @@ function getPropertyName(name: ts.PropertyName): string | null {
 }
 
 function formatTag(tag: ts.JSDocTagInfo) {
-  let result = "@" + tag.name;
+  let result = '@' + tag.name;
   if (tag.text) {
-    result += " " + tag.text;
+    result += ' ' + tag.text;
   }
   return result;
 }
@@ -871,7 +871,7 @@ function getTextValueOfClassMember(
       );
     });
 
-  return textValue || "";
+  return textValue || '';
 }
 
 function getTextValueOfFunctionProperty(
@@ -911,7 +911,7 @@ function getTextValueOfFunctionProperty(
         .expression as ts.BinaryExpression).right as ts.Identifier).text;
     });
 
-  return textValue || "";
+  return textValue || '';
 }
 
 function computeComponentName(exp: ts.Symbol, source: ts.SourceFile) {
@@ -920,26 +920,26 @@ function computeComponentName(exp: ts.Symbol, source: ts.SourceFile) {
   const statelessDisplayName = getTextValueOfFunctionProperty(
     exp,
     source,
-    "displayName"
+    'displayName'
   );
 
   const statefulDisplayName =
     exp.valueDeclaration &&
     ts.isClassDeclaration(exp.valueDeclaration) &&
-    getTextValueOfClassMember(exp.valueDeclaration, "displayName");
+    getTextValueOfClassMember(exp.valueDeclaration, 'displayName');
 
   if (statelessDisplayName || statefulDisplayName) {
-    return statelessDisplayName || statefulDisplayName || "";
+    return statelessDisplayName || statefulDisplayName || '';
   }
 
   if (
-    exportName === "default" ||
-    exportName === "__function" ||
-    exportName === "Stateless" ||
-    exportName === "StyledComponentClass" ||
-    exportName === "StyledComponent" ||
-    exportName === "FunctionComponent" ||
-    exportName === "StatelessComponent"
+    exportName === 'default' ||
+    exportName === '__function' ||
+    exportName === 'Stateless' ||
+    exportName === 'StyledComponentClass' ||
+    exportName === 'StyledComponent' ||
+    exportName === 'FunctionComponent' ||
+    exportName === 'StatelessComponent'
   ) {
     return getDefaultExportForFile(source);
   } else {
@@ -951,15 +951,15 @@ function computeComponentName(exp: ts.Symbol, source: ts.SourceFile) {
 export function getDefaultExportForFile(source: ts.SourceFile) {
   const name = path.basename(source.fileName, path.extname(source.fileName));
   const filename =
-    name === "index" ? path.basename(path.dirname(source.fileName)) : name;
+    name === 'index' ? path.basename(path.dirname(source.fileName)) : name;
 
   // JS identifiers must starts with a letter, and contain letters and/or numbers
   // So, you could not take filename as is
   const identifier = filename
-    .replace(/^[^A-Z]*/gi, "")
-    .replace(/[^A-Z0-9]*/gi, "");
+    .replace(/^[^A-Z]*/gi, '')
+    .replace(/[^A-Z0-9]*/gi, '');
 
-  return identifier.length ? identifier : "DefaultName";
+  return identifier.length ? identifier : 'DefaultName';
 }
 
 function getParentType(prop: ts.Symbol): ParentType | undefined {
@@ -1032,7 +1032,7 @@ function parseWithProgramProvider(
     .map(filePath => program.getSourceFile(filePath))
     .filter(
       (sourceFile): sourceFile is ts.SourceFile =>
-        typeof sourceFile !== "undefined"
+        typeof sourceFile !== 'undefined'
     )
     .reduce<ComponentDoc[]>((docs, sourceFile) => {
       const moduleSymbol = checker.getSymbolAtLocation(sourceFile);

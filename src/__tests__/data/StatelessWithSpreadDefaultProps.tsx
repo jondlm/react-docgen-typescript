@@ -43,9 +43,9 @@ const defaultProps = {
 
 StatelessWithDefaultProps.defaultProps = {
   ...defaultProps,
+  sampleEnum: enumSample.HELLO,
   // prettier-ignore
   sampleObject: { a: '1', b: 2, c: true, d: false, e: undefined, f: null, g: { a: '1' } },
-  sampleEnum: enumSample.HELLO,
   sampleString: 'hello',
   sampleTrue: true,
   sampleUndefined: undefined
