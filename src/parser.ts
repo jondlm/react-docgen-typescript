@@ -489,6 +489,18 @@ export class Parser {
     propertiesOfProps.forEach(prop => {
       const propName = prop.getName();
 
+      // TODO: handle this case where we have a type reference. Currently it's
+      // just showing `any` because `getTypeOfSymbolAtLocation` returns an
+      // error when we reference `React.ReadNode`.
+      /*
+      if (
+        ts.isPropertySignature(prop.valueDeclaration) &&
+        prop.valueDeclaration.type &&
+        ts.isTypeReferenceNode(prop.valueDeclaration.type)
+      ) {
+      }
+      */
+
       // Find type of prop by looking in context of the props object itself.
       const propType = this.checker.getTypeOfSymbolAtLocation(
         prop,
@@ -496,8 +508,6 @@ export class Parser {
       );
 
       const propTypeString = this.checker.typeToString(propType);
-
-      debugger;
 
       // tslint:disable-next-line:no-bitwise
       const isOptional = (prop.getFlags() & ts.SymbolFlags.Optional) !== 0;
